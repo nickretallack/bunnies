@@ -4,6 +4,7 @@ import pyglet
 from pyglet.gl import *
 from pyglet.window import mouse
 from vector import *
+from contextlib import contextmanager
 
 GRASS = 0
 tile_size = 20
@@ -90,6 +91,14 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
 
 ########## DRAWING ###########
 
+@contextmanager
+def matrix():
+    glPushMatrix()
+    try:
+        yield
+    finally:
+        glPopMatrix()
+
 @window.event
 def on_draw():
         window.clear()
@@ -108,26 +117,24 @@ def draw_square(prim=GL_QUADS):
 def draw_board():
     for x, row in enumerate(board):
         for y, cell in enumerate(row):
-            glPushMatrix()
-            glColor3f(0,1.0,0)
-            glScalef(tile_size,tile_size,tile_size)
-            glTranslatef(x, y, 0)
-            glScalef(1-1/tile_size,1-1/tile_size,1-1/tile_size)
-            draw_square(GL_QUADS)
-            glPopMatrix()
+            with matrix():
+                glColor3f(0,1.0,0)
+                glScalef(tile_size,tile_size,tile_size)
+                glTranslatef(x, y, 0)
+                glScalef(1-1/tile_size,1-1/tile_size,1-1/tile_size)
+                draw_square(GL_QUADS)
 
 def draw_bunnies():
     for bunny in bunnies:
-        glPushMatrix()
-        if bunny.selected:
-            glColor3f(1.0, 0.5, 0.5)
-        else:
-            glColor3f(1.0, 0, 0)
-        glScalef(tile_size,tile_size,tile_size)
-        glTranslatef(bunny.x, bunny.y, 0)
-        glScalef(1-1/tile_size,1-1/tile_size,1-1/tile_size)
-        draw_square(GL_QUADS)
-        glPopMatrix()
+        with matrix():
+            if bunny.selected:
+                glColor3f(1.0, 0.5, 0.5)
+            else:
+                glColor3f(1.0, 0, 0)
+            glScalef(tile_size,tile_size,tile_size)
+            glTranslatef(bunny.x, bunny.y, 0)
+            glScalef(1-1/tile_size,1-1/tile_size,1-1/tile_size)
+            draw_square(GL_QUADS)
 
 def generate_circle(radius=100, steps=50):
   verts = []
@@ -141,12 +148,11 @@ def draw_selection():
         center, radius = selection_center_radius(selection)
         vert_count = int(radius / 5.) + 10
         vertices = generate_circle(radius, vert_count)
-        glPushMatrix()
-        glColor3f(0,0,1.0)
-        glTranslatef(center.x, center.y,0)
-        pyglet.graphics.draw(vert_count, GL_LINE_LOOP,
-                ('v2f', vertices))
-        glPopMatrix()
+        with matrix():
+            glColor3f(0,0,1.0)
+            glTranslatef(center.x, center.y,0)
+            pyglet.graphics.draw(vert_count, GL_LINE_LOOP,
+                    ('v2f', vertices))
 
 def main():
     pyglet.app.run()
