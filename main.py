@@ -18,23 +18,40 @@ window = pyglet.window.Window()
 ############# MOVING ###############
 
 def move_bunny(dt):
-    chance_to_move = 0.99999
+    chance_to_move = 0.6
     for index, bunny in enumerate(bunnies):
+        # If commanded, follow commands
+        if bunny.destination:
+            if Distance(bunny,bunny.destination) < 2:
+                bunny.destination = None
+            else:
+                if bunny.destination.x < bunny.x:
+                    bunny.x -= 1
+                elif bunny.destination.x > bunny.x:
+                    bunny.x += 1
+                if bunny.destination.y < bunny.y:
+                    bunny.y -= 1
+                elif bunny.destination.y > bunny.y:
+                    bunny.y += 1
+
+        # If idle, behave randomly
         if random() > chance_to_move:
             x = randint(-1,1)
             y = randint(-1,1)
-            bunnies[index].x = int(bunnies[index].x + x)
-            bunnies[index].y = int(bunnies[index].y + y)
+            bunnies[index].x += x # int(bunnies[index].x + x)
+            bunnies[index].y += y # int(bunnies[index].y + y)
 
 pyglet.clock.schedule_interval(move_bunny, 0.1)
 
 @window.event
 def on_mouse_press(x, y, button, modifiers):
-    selection['start'] = Vector(x,y)
+    if button == mouse.LEFT:
+        selection['start'] = Vector(x,y)
 
 @window.event
 def on_mouse_release(x, y, button, modifiers):
     if button == mouse.LEFT:
+        # select bunnies
         for bunny in bunnies:
             bunny.selected = False
         if selection['start'] and selection['end']: 
@@ -53,6 +70,14 @@ def on_mouse_release(x, y, button, modifiers):
                     bunny.selected = True
         
         selection['start'] = selection['end'] = None
+
+    elif button == mouse.RIGHT:
+        # command bunnies
+        # lets start with a simple walk to the spot
+        for bunny in bunnies:
+            if bunny.selected:
+                bunny.destination = Vector(int(x / tile_size), int(y / tile_size))
+
 
 @window.event
 def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
