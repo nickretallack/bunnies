@@ -132,4 +132,8 @@ def draw_selection():
                 ('v2f', (selection['start'].x, selection['start'].y,
                          selection['end'].x, selection['end'].y)))
 
-pyglet.app.run()
+def main():
+    pyglet.app.run()
+
+if __name__ == "__main__":
+    main()
