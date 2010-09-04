@@ -48,6 +48,11 @@ def on_mouse_press(x, y, button, modifiers):
     if button == mouse.LEFT:
         selection['start'] = Vector(x,y)
 
+def selection_center_radius(selection):
+    circle_center = (selection['start'] + selection['end']) / 2
+    circle_radius = Length(circle_center - selection['start'])
+    return circle_center, circle_radius
+
 @window.event
 def on_mouse_release(x, y, button, modifiers):
     if button == mouse.LEFT:
@@ -55,11 +60,10 @@ def on_mouse_release(x, y, button, modifiers):
         for bunny in bunnies:
             bunny.selected = False
         if selection['start'] and selection['end']: 
-            circle_center = (selection['start'] + selection['end']) / 2
-            circle_radius = Length(circle_center - selection['start']) + tile_size/2
+            circle_center, circle_radius = selection_center_radius(selection)
             for bunny in bunnies:
-                distance = Distance(bunny * tile_size + Vector(tile_size/2, tile_size/2) , circle_center) 
-                if distance < circle_radius:
+                distance = Distance(bunny * tile_size + Vector(tile_size/2, tile_size/2), circle_center) 
+                if distance < circle_radius + tile_size/2:
                     bunny.selected = True
         else:
             click_center = Vector(x,y)
@@ -125,12 +129,24 @@ def draw_bunnies():
         draw_square(GL_QUADS)
         glPopMatrix()
 
+def generate_circle(radius=100, steps=50):
+  verts = []
+  for step in xrange(steps):
+    verts.append(radius * math.cos(step*1./(steps)*2*math.pi))
+    verts.append(radius * math.sin(step*1./(steps)*2*math.pi))
+  return verts
+
 def draw_selection():
     if selection['start'] and selection['end']:
+        center, radius = selection_center_radius(selection)
+        vert_count = int(radius / 5.) + 10
+        vertices = generate_circle(radius, vert_count)
+        glPushMatrix()
         glColor3f(0,0,1.0)
-        pyglet.graphics.draw(2, GL_LINES,
-                ('v2f', (selection['start'].x, selection['start'].y,
-                         selection['end'].x, selection['end'].y)))
+        glTranslatef(center.x, center.y,0)
+        pyglet.graphics.draw(vert_count, GL_LINE_LOOP,
+                ('v2f', vertices))
+        glPopMatrix()
 
 def main():
     pyglet.app.run()
