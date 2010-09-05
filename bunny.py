@@ -30,7 +30,7 @@ class Bunny(object):
 
     @property
     def ready_to_mate(self):
-        if self.age > self.mature_age:
+        if self.age > self.mature_age and self.food > self.food_danger:
             if self.gender == 'male' and self.time_since_mated > self.refractory_period:
                 return True
             elif self.gender == 'female' and self.pregnant == False:
@@ -43,11 +43,14 @@ class Bunny(object):
         self.time_since_mated = bunny.time_since_mated = 0
 
     def give_birth(self):
-        self.pregnant = False
-        self.gestation = 0
-        gender = choice(['male','female'])
-        new_bunny = Bunny(self.world, self.location, gender)
-        self.world.bunnies.append(new_bunny)
+        if self.gestation > self.gestation_period:
+            self.pregnant = False
+            self.gestation = 0
+            gender = choice(['male','female'])
+            new_bunny = Bunny(self.world, self.location, gender)
+            self.world.bunnies.append(new_bunny)
+            print "birthing",
+            return True
 
     def step_towards(self, location):
         if location.x < self.x:
@@ -59,12 +62,68 @@ class Bunny(object):
         elif location.y > self.y:
             self.y += 1
 
+    def male_search_for_mate(self):
+        if self.gender == 'male' and self.ready_to_mate:
+            # horny buck bunny searches for a mate
+            for bunny in self.world.bunnies:
+                if bunny.gender == 'female' and bunny.ready_to_mate:
+                    if self.location == bunny.location:
+                        self.mate(bunny)
+                        print "mating",
+                        return True
+                    else:
+                        self.step_towards(bunny.location)
+                        print "chasing mate",
+                        return True
+
+    def eat_food_here(self):
+        if self.food < 20 and self.cell.grass > self.bite_size:
+            self.food += self.cell.eat(self.bite_size)
+            print "eating",
+            return True
+
+    def follow_orders(self):
+        if self.destination:
+            self.step_towards(self.destination)
+            if Distance(self.location, self.destination) < 1:
+                self.destination = None
+            print "obeying command",
+            return True
+
+    def search_for_food(self):
+        if self.food < self.food_danger:
+            if self.cell.grass:
+                self.food += self.cell.eat(self.bite_size)
+                print "eating hungrily",
+                return True
+            else:
+                # find a cell with grass and go toward it
+                destination = self.world.nearest_grass(self.location, self.bite_size)
+                if not destination:
+                    destination = self.world.nearest_grass(self.location, 0)
+                if destination:
+                    self.step_towards(destination)
+                    print "looking for food",
+                    return True
+
+    def move_randomly(self):
+        if random() < self.chance_to_move:
+            new_location = self.location + Vector(randint(-1,1),randint(-1,1))
+            new_cell = self.world.get_cell(new_location)
+            if new_cell is not None:
+                self.location = new_location
+                print "moving randomly",
+                return True
+
+    def do_nothing(self):
+        print "doing nothing",
+        return True
 
     def simulate(self, dt):
         self.age += dt
         self.food -= dt * self.metabolism
         self.time_since_mated += 1 # todo: use timestamps instead
-        cell = self.world.get_cell(self.location)
+        self.cell = self.world.get_cell(self.location)
 
         if self.pregnant:
             self.gestation += dt
@@ -73,54 +132,14 @@ class Bunny(object):
         # TODO: have the bunny make a decision and stick to it,
         # instead of re-calculating every round
         # TODO: model bunnies randomly spreading grass seed
+        # TODO: model bunny death of old age or starvation
+        # TODO: add another action for desperately eating the last of 
 
-        if self.gestation > self.gestation_period:
-            self.give_birth()
-            print "birthing",
-
-        elif self.gender == 'male' and self.ready_to_mate:
-            # horny buck bunny searches for a mate
-            for bunny in self.world.bunnies:
-                if bunny.gender == 'female' and bunny.ready_to_mate:
-                    if self.location == bunny.location:
-                        print "mating",
-                        self.mate(bunny)
-                    else:
-                        print "chasing down mate",
-                        self.step_towards(bunny.location)
-
-        elif self.food < 20 and cell.grass > self.bite_size:
-            self.food += cell.eat(self.bite_size)
-            print "eating",
-
-        # If commanded, follow commands
-        elif self.destination:
-            if Distance(self.location, self.destination) < 1:
-                self.destination = None
-                print "finished command",
-            else:
-                self.step_towards(self.destination)
-                print "obeying command",
-
-        elif self.food < self.food_danger:
-            if cell.grass:
-                self.food += cell.eat(self.bite_size)
-                print "eating hungrily",
-            else:
-                # find a cell with grass and go toward it
-                self.step_towards(self.world.nearest_grass(self.location, self.bite_size))
-                print "looking for food",
-
-        # If idle, behave randomly
-        elif random() < self.chance_to_move:
-            print "moving idly",
-            new_location = self.location + Vector(randint(-1,1),randint(-1,1))
-            new_cell = self.world.get_cell(new_location)
-            if new_cell is not None:
-                self.location = new_location
-
-        else:
-            print "nothing", self.food,
+        for action in [self.give_birth, self.follow_orders, self.male_search_for_mate, self.eat_food_here,
+                self.search_for_food, self.move_randomly, self.do_nothing]:
+            success = action()
+            if success:
+                break
 
     def draw(self):
         with matrix():
