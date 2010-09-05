@@ -4,8 +4,8 @@ class Vector:
     def __init__(self, x = 0, y = 0):
         self.x = float(x)
         self.y = float(y)
-        self.selected = False
-        self.destination = None
+        #self.selected = False
+        #self.destination = None
         
     def __add__(self, val):
         return Point( self[0] + val[0], self[1] + val[1] )

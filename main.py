@@ -4,6 +4,7 @@ import pyglet
 from pyglet.gl import *
 from pyglet.window import mouse
 from vector import *
+from bunny import Bunny
 from contextlib import contextmanager
 
 GRASS = 0
@@ -11,7 +12,7 @@ tile_size = 20
 gutter_size = 1
 width = height = 25
 board = [[GRASS for _ in xrange(width)] for _ in xrange(height)]
-bunnies = [Vector(5,7),Vector(6,9)]
+bunnies = [Bunny(5,7), Bunny(6,9)]
 selection = {'start':None, 'end':None}
 
 window = pyglet.window.Window()
@@ -23,7 +24,7 @@ def move_bunny(dt):
     for index, bunny in enumerate(bunnies):
         # If commanded, follow commands
         if bunny.destination:
-            if Distance(bunny,bunny.destination) < 2:
+            if Distance(bunny.location, bunny.destination) < 2:
                 bunny.destination = None
             else:
                 if bunny.destination.x < bunny.x:
@@ -63,14 +64,14 @@ def on_mouse_release(x, y, button, modifiers):
         if selection['start'] and selection['end']: 
             circle_center, circle_radius = selection_center_radius(selection)
             for bunny in bunnies:
-                distance = Distance(bunny * tile_size + Vector(tile_size/2, tile_size/2), circle_center) 
+                distance = Distance(bunny.location * tile_size + Vector(tile_size/2, tile_size/2), circle_center) 
                 if distance < circle_radius + tile_size/2:
                     bunny.selected = True
         else:
             click_center = Vector(x,y)
             click_radius = tile_size
             for bunny in bunnies:
-                distance = Distance(bunny * tile_size + Vector(tile_size/2, tile_size/2) , click_center)
+                distance = Distance(bunny.location * tile_size + Vector(tile_size/2, tile_size/2) , click_center)
                 if distance < click_radius:
                     bunny.selected = True
         
