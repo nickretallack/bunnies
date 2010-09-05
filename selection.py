@@ -4,6 +4,7 @@ class Selection(object):
     def __init__(self):
         self.start = None
         self.end = None
+        self.selected_objects = []
 
     @property
     def ready(self):
@@ -14,9 +15,6 @@ class Selection(object):
         circle_center = (self.start + self.end) / 2
         circle_radius = Length(circle_center - self.start)
         return circle_center, circle_radius
-
-    def clear(self):
-        self.start = self.end = None
 
     def draw(self):
         if self.ready:
@@ -29,22 +27,33 @@ class Selection(object):
                 pyglet.graphics.draw(vert_count, GL_LINE_LOOP,
                         ('v2f', vertices))
 
-    def select(self, world):
-        # select bunnies
-        for bunny in world.bunnies:
+    def select_object(self, it):
+        self.selected_objects.append(it)
+        it.selected = True
+
+    def deselect_all(self):
+        for bunny in self.selected_objects:
             bunny.selected = False
+        self.selected_objects = []
+
+
+    def select(self, world):
+        self.deselect_all()
+
         if self.ready:
+            # Dragged a circle
             circle_center, circle_radius = self.center_radius
             for bunny in world.bunnies:
                 distance = Distance(bunny.location * tile_size + Vector(tile_size/2, tile_size/2), circle_center) 
                 if distance < circle_radius + tile_size/2:
-                    bunny.selected = True
+                    self.select_object(bunny)
         else:
+            # Clicked a spot
             click_center = Vector(x,y)
             click_radius = tile_size
             for bunny in world.bunnies:
                 distance = Distance(bunny.location * tile_size + Vector(tile_size/2, tile_size/2) , click_center)
                 if distance < click_radius:
-                    bunny.selected = True
+                    self.select_object(bunny)
         
-        self.clear()
+        self.start = self.end = None

@@ -8,7 +8,6 @@ from world import World
 from window import WorldWindow
 from glhelper import *
 
-
 if __name__ == "__main__":
     world = World(Vector(20,20), bunnies=[Bunny(5,7), Bunny(6,9)])
     pyglet.clock.schedule_interval(world.simulate, 0.1)

@@ -19,9 +19,8 @@ class WorldWindow(pyglet.window.Window):
 
         elif button == mouse.RIGHT:
             # command bunnies
-            for bunny in self.world.bunnies:
-                if bunny.selected:
-                    bunny.destination = Vector(int(x / tile_size), int(y / tile_size))
+            for bunny in self.selection.selected_objects:
+                bunny.destination = Vector(int(x / tile_size), int(y / tile_size))
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         if buttons & mouse.LEFT:
