@@ -6,6 +6,9 @@ class Vector:
         self.y = float(y)
         #self.selected = False
         #self.destination = None
+
+    def __eq__(self, val):
+        return self.x == val.x and self.y == val.y
         
     def __add__(self, val):
         return Point( self[0] + val[0], self[1] + val[1] )

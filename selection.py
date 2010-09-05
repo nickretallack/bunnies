@@ -36,7 +36,6 @@ class Selection(object):
             bunny.selected = False
         self.selected_objects = []
 
-
     def select(self, world):
         self.deselect_all()
 

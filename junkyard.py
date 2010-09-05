@@ -31,7 +31,4 @@ if __name__ == "__main__":
         a.x
         print a.x, a.y
 
-def walk2d(board):
-    for x, row in enumerate(board):
-        for y, cell in enumerate(row):
-            yield Vector(x,y), cell
+

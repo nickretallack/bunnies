@@ -3,13 +3,18 @@ from random import random, randint
 from glhelper import *
 
 class Bunny(object):
-    def __init__(self, x,y):
-        self.location = Vector(x,y)
+    def __init__(self, world, location):
+        self.world = world
+        self.location = location
         self.destination = None
         self.selected = False
         self.age = 0
-        self.food = 10
+        self.food = 20
         self.chance_to_move = 0.6
+        self.bite_size = 5
+        self.food_danger = 10
+        self.food_satiated = 20
+        self.metabolism = 2
 
     x = property(lambda self: self.location.x,
                  lambda self, value: setattr(self.location,'x',value))
@@ -18,11 +23,16 @@ class Bunny(object):
 
     def simulate(self, dt):
         self.age += dt
-        self.food -= dt
+        self.food -= dt * self.metabolism
+
+        cell = self.world.get_cell(self.location)
+
+        if self.food < 20 and cell.grass > self.bite_size:
+            self.food += cell.eat(self.bite_size)
 
         # If commanded, follow commands
-        if self.destination:
-            if Distance(self.location, self.destination) < 2:
+        elif self.destination:
+            if Distance(self.location, self.destination) < 1:
                 self.destination = None
             else:
                 if self.destination.x < self.x:
@@ -34,10 +44,19 @@ class Bunny(object):
                 elif self.destination.y > self.y:
                     self.y += 1
 
+        elif self.food < 10:
+            if cell.grass:
+                self.food += cell.eat(self.bite_size)
+            else:
+                # find a cell with grass and go toward it
+                self.destination = self.world.nearest_grass(self.location, self.bite_size)
+
         # If idle, behave randomly
         elif random() > self.chance_to_move:
-            self.x += randint(-1,1)
-            self.y += randint(-1,1)
+            new_location = self.location + Vector(randint(-1,1),randint(-1,1))
+            new_cell = self.world.get_cell(new_location)
+            if new_cell is not None:
+                self.location = new_location
 
     def draw(self):
         with matrix():
