@@ -12,12 +12,12 @@ class Bunny(object):
         self.refractory_period = 10
         self.selected = False
         self.age = self.mature_age
-        self.food = 20
+        self.food = 0
         self.chance_to_move = 1
         self.bite_size = 5
         self.food_danger = 5
         self.food_satiated = 30
-        self.metabolism = 2
+        self.metabolism = 5
         self.time_since_mated = self.age
         self.pregnant = False
         self.gestation = 0
@@ -92,19 +92,27 @@ class Bunny(object):
 
     def search_for_food(self):
         if self.food < self.food_danger:
-            if self.cell.grass:
+            # find a cell with grass and go toward it
+            destination = self.world.nearest_grass(self.location, self.bite_size)
+            if self.cell.location == destination:
                 self.food += self.cell.eat(self.bite_size)
                 print "eating hungrily",
                 return True
-            else:
-                # find a cell with grass and go toward it
-                destination = self.world.nearest_grass(self.location, self.bite_size)
-                if not destination:
-                    destination = self.world.nearest_grass(self.location, 0)
-                if destination:
-                    self.step_towards(destination)
-                    print "looking for food",
+            elif destination is None:
+                # If no big grasses still exist, go for a small grass
+                destination = self.world.nearest_grass(self.location, 1)
+                if self.cell.location == destination:
+                    self.food += self.cell.eat(self.bite_size)
+                    print "eating desperately",
                     return True
+                elif destination:
+                    self.step_towards(destination)
+                    print "looking desperately for food"
+                    return True
+            else:
+                self.step_towards(destination)
+                print "looking for food",
+                return True
 
     def move_randomly(self):
         if random() < self.chance_to_move:

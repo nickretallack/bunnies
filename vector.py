@@ -8,7 +8,7 @@ class Vector:
         #self.destination = None
 
     def __eq__(self, val):
-        return self.x == val.x and self.y == val.y
+        return isinstance(val, Vector) and self.x == val.x and self.y == val.y
         
     def __add__(self, val):
         return Point( self[0] + val[0], self[1] + val[1] )

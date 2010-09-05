@@ -12,7 +12,7 @@ class World(object):
 
         self.bunnies = [Bunny(self, Vector(5,7), gender='male'), Bunny(self, Vector(6,9), gender='female')]
 
-        for location in [Vector(5,5), Vector(15,7), Vector(8,13)]:
+        for location in [Vector(5,5)]: #, Vector(15,7), Vector(8,13)]:
             self.get_cell(location).grass = 20
 
     def simulate(self, dt):
@@ -39,7 +39,7 @@ class World(object):
         for radius in xrange(len(self.grid)*2):
             for check_location in walk_square(location, radius):
                 cell = self.get_cell(check_location)
-                if cell is not None and cell.grass > min_grass:
+                if cell is not None and cell.grass >= min_grass:
                     return cell.location
 
 class Cell(object):
@@ -89,14 +89,17 @@ def walk2d(grid):
             yield cell
 
 def walk_square(center, radius):
-    for offset in [Vector(x, radius) for x in xrange(-radius, radius)]:
-        yield center + offset
-    for offset in [Vector(x, -radius) for x in xrange(-radius, radius)]:
-        yield center + offset
-    for offset in [Vector(radius, y) for y in xrange(-radius, radius)]:
-        yield center + offset
-    for offset in [Vector(-radius, y) for y in xrange(-radius, radius)]:
-        yield center + offset
+    if radius == 0:
+        yield center
+    else:
+        for offset in [Vector(x, radius) for x in xrange(-radius, radius)]:
+            yield center + offset
+        for offset in [Vector(x, -radius) for x in xrange(-radius, radius)]:
+            yield center + offset
+        for offset in [Vector(radius, y) for y in xrange(-radius, radius)]:
+            yield center + offset
+        for offset in [Vector(-radius, y) for y in xrange(-radius, radius)]:
+            yield center + offset
 
 
 
