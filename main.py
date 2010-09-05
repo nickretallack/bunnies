@@ -1,49 +1,32 @@
 from __future__ import division
-from random import random, randint
 import pyglet
 from pyglet.gl import *
 from pyglet.window import mouse
 from vector import *
 from bunny import Bunny
+from world import World
 from contextlib import contextmanager
 
-GRASS = 0
-tile_size = 20
-gutter_size = 1
-width = height = 25
-board = [[GRASS for _ in xrange(width)] for _ in xrange(height)]
+world = World(Vector(20,20))
 bunnies = [Bunny(5,7), Bunny(6,9)]
 selection = {'start':None, 'end':None}
+
+tile_size = 20
+gutter_size = 1
 
 window = pyglet.window.Window()
 
 ############# MOVING ###############
 
-def move_bunny(dt):
-    chance_to_move = 0.6
-    for index, bunny in enumerate(bunnies):
-        # If commanded, follow commands
-        if bunny.destination:
-            if Distance(bunny.location, bunny.destination) < 2:
-                bunny.destination = None
-            else:
-                if bunny.destination.x < bunny.x:
-                    bunny.x -= 1
-                elif bunny.destination.x > bunny.x:
-                    bunny.x += 1
-                if bunny.destination.y < bunny.y:
-                    bunny.y -= 1
-                elif bunny.destination.y > bunny.y:
-                    bunny.y += 1
+def simulate(dt):
+    # maybe bunnies should be part of the world?
+    for bunny in bunnies:
+        bunny.simulate(dt)
 
-        # If idle, behave randomly
-        if random() > chance_to_move:
-            x = randint(-1,1)
-            y = randint(-1,1)
-            bunnies[index].x += x # int(bunnies[index].x + x)
-            bunnies[index].y += y # int(bunnies[index].y + y)
+    world.simulate(dt)
 
-pyglet.clock.schedule_interval(move_bunny, 0.1)
+
+pyglet.clock.schedule_interval(simulate, 0.1)
 
 @window.event
 def on_mouse_press(x, y, button, modifiers):
@@ -116,7 +99,7 @@ def draw_square(prim=GL_QUADS):
         )
 
 def draw_board():
-    for x, row in enumerate(board):
+    for x, row in enumerate(world.grid):
         for y, cell in enumerate(row):
             with matrix():
                 glColor3f(0,1.0,0)
