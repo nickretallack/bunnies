@@ -10,7 +10,7 @@ class World(object):
         self.grid = [[Cell(self, Vector(x,y)) for x in xrange(int(size.x))] 
                                         for y in xrange(int(size.y))]
 
-        self.bunnies = [Bunny(self, Vector(5,7)), Bunny(self, Vector(6,9))]
+        self.bunnies = [Bunny(self, Vector(5,7), gender='male'), Bunny(self, Vector(6,9), gender='female')]
 
         for location in [Vector(5,5), Vector(15,7), Vector(8,13)]:
             self.get_cell(location).grass = 20
@@ -19,9 +19,10 @@ class World(object):
         for cell in walk2d(self.grid):
             cell.simulate(dt)
 
-
         for bunny in self.bunnies:
             bunny.simulate(dt)
+            print '\t| ',
+        print
 
     def draw(self):
         for cell in walk2d(self.grid):
