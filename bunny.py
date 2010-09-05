@@ -1,5 +1,6 @@
 from vector import *
 from random import random, randint
+from glhelper import *
 
 class Bunny(object):
     def __init__(self, x,y):
@@ -37,6 +38,17 @@ class Bunny(object):
         elif random() > self.chance_to_move:
             self.x += randint(-1,1)
             self.y += randint(-1,1)
+
+    def draw(self):
+        with matrix():
+            if self.selected:
+                glColor3f(1.0, 0.5, 0.5)
+            else:
+                glColor3f(1.0, 0, 0)
+            glScalef(tile_size,tile_size,tile_size)
+            glTranslatef(self.x, self.y, 0)
+            glScalef(1-1/tile_size,1-1/tile_size,1-1/tile_size)
+            draw_square(GL_QUADS)
 
 if __name__ == "__main__":
         a = Bunny(1,2)
