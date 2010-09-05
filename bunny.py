@@ -12,12 +12,12 @@ class Bunny(object):
         self.refractory_period = 10
         self.selected = False
         self.age = self.mature_age
-        self.food = 0
+        self.food = 10
         self.chance_to_move = 1
         self.bite_size = 5
         self.food_danger = 5
         self.food_satiated = 30
-        self.metabolism = 5
+        self.metabolism = 1
         self.time_since_mated = self.age
         self.pregnant = False
         self.gestation = 0

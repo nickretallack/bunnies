@@ -12,7 +12,7 @@ class World(object):
 
         self.bunnies = [Bunny(self, Vector(5,7), gender='male'), Bunny(self, Vector(6,9), gender='female')]
 
-        for location in [Vector(5,5)]: #, Vector(15,7), Vector(8,13)]:
+        for location in [Vector(5,5), Vector(15,7), Vector(8,13)]:
             self.get_cell(location).grass = 20
 
     def simulate(self, dt):
