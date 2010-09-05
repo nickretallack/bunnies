@@ -6,7 +6,8 @@ width = height = 25
 
 class World(object):
     def __init__(self, size, bunnies=[]):
-        self.grid = [[Cell(Vector(x,y)) for x in xrange(size.x)] for y in xrange(size.y)]
+        self.grid = [[Cell(Vector(x,y)) for x in xrange(int(size.x))] 
+                                        for y in xrange(int(size.y))]
         self.bunnies = bunnies
 
     def simulate(self, dt):

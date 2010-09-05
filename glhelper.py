@@ -1,6 +1,7 @@
 from __future__ import division
 from contextlib import contextmanager
 from pyglet.gl import *
+from vector import *
 import math
 
 @contextmanager
