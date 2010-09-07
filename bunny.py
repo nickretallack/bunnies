@@ -16,7 +16,7 @@ class Bunny(object):
         self.selected = False
         self.age = self.mature_age
         self.food = 10
-        self.chance_to_move = 1
+        self.chance_to_move = 0.05
         self.bite_size = 5
         self.food_danger = 5
         self.food_satiated = 30
@@ -25,6 +25,7 @@ class Bunny(object):
         self.pregnant = False
         self.gestation = 0
         self.gestation_period = 10
+        self.current_action = None
 
 
     x = property(lambda self: self.location.x,
@@ -118,14 +119,7 @@ class Bunny(object):
                 print "looking for food",
                 return True
 
-    def move_randomly(self):
-        if random() < self.chance_to_move:
-            new_location = self.location + Vector(randint(-1,1),randint(-1,1))
-            new_cell = self.world.get_cell(new_location)
-            if new_cell is not None:
-                self.location = new_location
-                print "moving randomly",
-                return True
+
 
     def do_nothing(self):
         print "doing nothing",
@@ -147,11 +141,24 @@ class Bunny(object):
         # TODO: model bunny death of old age or starvation
         # TODO: add another action for desperately eating the last of 
 
+        if not self.current_action:
+            for action in actions:
+                self.current_action = action.attempt(self)
+                if self.current_action:
+                    break
+
+        if self.current_action:
+            self.current_action.act()
+            if self.current_action.finished:
+                self.current_action = None
+
+        """
         for action in [self.give_birth, self.follow_orders, self.male_search_for_mate, self.eat_food_here,
                 self.search_for_food, self.move_randomly, self.do_nothing]:
             success = action()
             if success:
                 break
+        """
 
     def draw(self):
         with matrix():
@@ -166,6 +173,36 @@ class Bunny(object):
             glEnable(GL_TEXTURE_2D)
             draw_textured_square()
             glDisable(GL_TEXTURE_2D)
+
+
+"""
+class Action(object):
+    @classmethod
+    def attempt(cls, bunny):
+"""
+
+
+class MoveRandomly(object):
+    @classmethod
+    def attempt(cls, bunny):
+        if random() < bunny.chance_to_move:
+            new_location = bunny.location + Vector(randint(-5,5),randint(-5,5))
+            new_cell = bunny.world.get_cell(new_location)
+            if new_cell is not None:
+                return cls(bunny, new_location)
+
+    def __init__(self, bunny, new_location):
+        self.bunny = bunny
+        self.destination = new_location
+
+    def act(self):
+        self.bunny.step_towards(self.destination)
+
+    @property
+    def finished(self):
+        return Distance(self.bunny.location, self.destination) < 1
+
+actions = [MoveRandomly]
 
 
 def draw_textured_square(prim=GL_QUADS):
