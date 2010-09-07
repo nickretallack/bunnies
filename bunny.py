@@ -71,11 +71,7 @@ class Bunny(object):
                         print "chasing mate",
                         return True
 
-    def eat_food_here(self):
-        if self.food < 20 and self.cell.grass > self.bite_size:
-            self.food += self.cell.eat(self.bite_size)
-            print "eating",
-            return True
+
 
     def follow_orders(self):
         if self.destination:
@@ -84,30 +80,6 @@ class Bunny(object):
                 self.destination = None
             print "obeying command",
             return True
-
-    def search_for_food(self):
-        if self.food < self.food_danger:
-            # find a cell with grass and go toward it
-            destination = self.world.nearest_grass(self.location, self.bite_size)
-            if self.cell.location == destination:
-                self.food += self.cell.eat(self.bite_size)
-                print "eating hungrily",
-                return True
-            elif destination is None:
-                # If no big grasses still exist, go for a small grass
-                destination = self.world.nearest_grass(self.location, 1)
-                if self.cell.location == destination:
-                    self.food += self.cell.eat(self.bite_size)
-                    print "eating desperately",
-                    return True
-                elif destination:
-                    self.step_towards(destination)
-                    print "looking desperately for food"
-                    return True
-            else:
-                self.step_towards(destination)
-                print "looking for food",
-                return True
 
 
 
@@ -160,26 +132,24 @@ class Bunny(object):
             glScalef(*(tile_size,)*3)
             glTranslatef(*self.location)
             glRotatef(Angle(self.velocity),0,0,1)
+            glScalef(*(2,)*3)
             glTranslatef(-0.5, -0.5, 0)
             glEnable(GL_TEXTURE_2D)
             draw_textured_square()
             glDisable(GL_TEXTURE_2D)
 
 
-"""
-class Action(object):
-    @classmethod
-    def attempt(cls, bunny):
-"""
 
+class Action(object): pass
 
-class MoveRandomly(object):
+class Move(Action):
     @classmethod
     def attempt(cls, bunny):
         if random() < bunny.chance_to_move:
             new_location = bunny.location + Vector(randint(-5,5),randint(-5,5))
             new_cell = bunny.world.get_cell(new_location)
             if new_cell is not None:
+                print "moving randomly"
                 return cls(bunny, new_location)
 
     def __init__(self, bunny, new_location):
@@ -191,9 +161,55 @@ class MoveRandomly(object):
 
     @property
     def finished(self):
-        return Distance(self.bunny.location, self.destination) < 1
+        return Distance(self.bunny.location, self.destination) < self.bunny.speed
 
-actions = [MoveRandomly]
+class EatFoodHere(Action):
+    @classmethod
+    def attempt(cls, bunny):
+        if bunny.food < 20 and bunny.cell.grass > bunny.bite_size:
+            print "begin eating"
+            return cls(bunny, bunny.bite_size)
+            
+    def __init__(self, bunny, quota):
+        self.bunny = bunny
+        self.quota = quota
+        self.finished = False
+
+    def act(self):
+        food = self.bunny.cell.eat(1)
+        self.quota -= food
+        self.bunny.food += food
+        if food < 1 or self.quota <= 0:
+            self.finished = True
+
+# TODO: make this a compound action
+class SearchForFood(Action):
+    @classmethod
+    def attempt(cls, bunny):
+        if bunny.food < bunny.food_danger:
+            # find a cell with grass and go toward it
+            destination = bunny.world.nearest_grass(bunny.location, bunny.bite_size)
+            if bunny.cell.location == destination:
+                print 'food here'
+                return EatFoodHere(bunny, bunny.food_satiated - bunny.food_danger)
+
+            elif destination is None:
+                # If no big grasses still exist, go for a small grass
+                destination = self.world.nearest_grass(self.location, 1)
+                if self.cell.location == destination:
+                    print 'desperate food here'
+                    return EatFoodHere(bunny, bunny.food_satiated - bunny.food_danger)
+
+                elif destination:
+                    print 'desperate found'
+                    return Move(bunny, destination)
+            else:
+                #import pdb; pdb.set_trace()
+                print 'found food at %s' % destination
+                return Move(bunny, destination)
+    
+
+actions = [SearchForFood, EatFoodHere, Move,]
 
 
 def draw_textured_square(prim=GL_QUADS):

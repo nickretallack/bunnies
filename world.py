@@ -10,7 +10,7 @@ class World(object):
         self.grid = [[Cell(self, Vector(x,y)) for x in xrange(int(size.x))] 
                                         for y in xrange(int(size.y))]
 
-        self.bunnies = [Bunny(self, Vector(5,7), gender='male'), Bunny(self, Vector(6,9), gender='female')]
+        self.bunnies = [Bunny(self, Vector(5,7), gender='male')] #, Bunny(self, Vector(6,9), gender='female')]
 
         for location in [Vector(5,5), Vector(15,7), Vector(8,13)]:
             self.get_cell(location).grass = 20
@@ -49,7 +49,7 @@ class Cell(object):
     def __init__(self, world, location, type='grass'):
         self.type = type
         self.world = world
-        self.location = location
+        self.location = location + Vector(0.5,0.5) # location should be the center of the cell
         self.grass = 0
         self.grass_max = 20
         self.grass_growth_rate = 0.5
