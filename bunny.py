@@ -45,9 +45,9 @@ class Bunny(object):
         bunny.gestation = 0
         self.time_since_mated = bunny.time_since_mated = 0
 
-    def step_towards(self, location, dt):
-        self.velocity = Normalize(location - self.location) * dt * self.speed
-        self.location += self.velocity
+    def step_towards(self, destination, dt):
+        self.velocity = Normalize(destination - self.location) * self.speed
+        self.location += self.velocity * dt
 
     def do_nothing(self):
         print "doing nothing",
