@@ -26,12 +26,8 @@ class Bunny(object):
         self.gestation = 0
         self.gestation_period = 10
         self.current_action = None
-
-
-    x = property(lambda self: self.location.x,
-                 lambda self, value: setattr(self.location,'x',value))
-    y = property(lambda self: self.location.y,
-                 lambda self, value: setattr(self.location,'y',value))
+        self.speed = 0.1
+        self.velocity = Vector(0,0)
 
     @property
     def ready_to_mate(self):
@@ -58,14 +54,8 @@ class Bunny(object):
             return True
 
     def step_towards(self, location):
-        if location.x < self.x:
-            self.x -= 1
-        elif location.x > self.x:
-            self.x += 1
-        if location.y < self.y:
-            self.y -= 1
-        elif location.y > self.y:
-            self.y += 1
+        self.velocity = Normalize(location - self.location) * self.speed
+        self.location += self.velocity
 
     def male_search_for_mate(self):
         if self.gender == 'male' and self.ready_to_mate:
@@ -167,9 +157,10 @@ class Bunny(object):
                 glColor3f(1.0, 0.5, 0.5)
             else:
                 glColor3f(1.0, 1.0, 1.0)
-            glScalef(tile_size,tile_size,tile_size)
-            glTranslatef(self.x, self.y, 0)
-            #glScalef(1-1/tile_size,1-1/tile_size,1-1/tile_size)
+            glScalef(*(tile_size,)*3)
+            glTranslatef(*self.location)
+            glRotatef(Angle(self.velocity),0,0,1)
+            glTranslatef(-0.5, -0.5, 0)
             glEnable(GL_TEXTURE_2D)
             draw_textured_square()
             glDisable(GL_TEXTURE_2D)

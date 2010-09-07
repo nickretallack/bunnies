@@ -50,8 +50,10 @@ class Vector:
             return self.x
         elif( key == 1):
             return self.y
+        elif( key == 2):
+            return 0
         else:
-            raise Exception("Invalid key to Point")
+            raise StopIteration #return 0 #raise Exception("Invalid key to Point")
         
     def __setitem__(self, key, value):
         if( key == 0):
@@ -91,4 +93,11 @@ def Dot( a,b ):
 def ProjectOnto( w,v ):
     'Projects w onto v.'
     return v * Dot(w,v) / LengthSqrd(v)
+def Angle( vec ):
+    return math.atan2(vec.y, vec.x) * 180 / math.pi
 
+if __name__ == "__main__":
+    a = Vector(1,2)
+    def b(one,two,three):
+        print one,two,three
+    b(*a)

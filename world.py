@@ -15,14 +15,17 @@ class World(object):
         for location in [Vector(5,5), Vector(15,7), Vector(8,13)]:
             self.get_cell(location).grass = 20
 
+        self.step = 0
+
     def simulate(self, dt):
-        for cell in walk2d(self.grid):
-            cell.simulate(dt)
+        if self.step > 10:
+            for cell in walk2d(self.grid):
+                cell.simulate(dt)
+        else:
+            self.step += 1
 
         for bunny in self.bunnies:
             bunny.simulate(dt)
-            print '\t| ',
-        print
 
     def draw(self):
         for cell in walk2d(self.grid):

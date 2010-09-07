@@ -10,7 +10,7 @@ from glhelper import *
 
 if __name__ == "__main__":
     world = World(Vector(20,20))
-    pyglet.clock.schedule_interval(world.simulate, 0.1)
+    pyglet.clock.schedule_interval(world.simulate, 1/120)
     window = WorldWindow(world, fullscreen=True)
 
     # when texture area is small, bilinear filter the closest mipmap
