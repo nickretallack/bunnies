@@ -49,10 +49,6 @@ class Bunny(object):
         self.velocity = Normalize(destination - self.location) * self.speed
         self.location += self.velocity * dt
 
-    def do_nothing(self):
-        print "doing nothing",
-        return True
-
     def simulate(self, dt):
         self.age += dt
         self.food -= dt * self.metabolism
@@ -63,11 +59,8 @@ class Bunny(object):
             self.gestation += dt
 
         # BEHAVIOR CHOICES
-        # TODO: have the bunny make a decision and stick to it,
-        # instead of re-calculating every round
         # TODO: model bunnies randomly spreading grass seed
         # TODO: model bunny death of old age or starvation
-        # TODO: add another action for desperately eating the last of 
 
         if not self.current_action:
             for action in actions:
@@ -79,14 +72,6 @@ class Bunny(object):
             self.current_action.act(dt)
             if self.current_action.finished:
                 self.current_action = None
-
-        """
-        for action in [self.give_birth, self.follow_orders, self.male_search_for_mate, self.eat_food_here,
-                self.search_for_food, self.move_randomly, self.do_nothing]:
-            success = action()
-            if success:
-                break
-        """
 
     def draw(self):
         with matrix():
@@ -206,7 +191,6 @@ class GiveBirth(Action):
 
 actions = [GiveBirth, SearchForFood, SearchForMate, Eat, Move,]
 
-
 def draw_textured_square(prim=GL_QUADS):
     square = (0, 0,
               1, 0,
@@ -217,11 +201,3 @@ def draw_textured_square(prim=GL_QUADS):
         ('v2i', square),
         ('t2i', square),
     )
-
-
-
-
-if __name__ == "__main__":
-        a = Bunny(1,2)
-        a.x
-        print a.x, a.y
