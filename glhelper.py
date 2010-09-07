@@ -27,4 +27,4 @@ def generate_circle(radius=100, steps=50):
     verts.append(radius * math.sin(step*1./(steps)*2*math.pi))
   return verts
 
-tile_size = 10
+tile_size = 30
