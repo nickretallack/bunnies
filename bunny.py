@@ -1,6 +1,9 @@
 from vector import *
 from random import random, randint, choice
 from glhelper import *
+import pyglet
+
+bunny_texture = pyglet.image.load('bunny.png').get_texture()
 
 class Bunny(object):
     def __init__(self, world, location, gender):
@@ -22,6 +25,7 @@ class Bunny(object):
         self.pregnant = False
         self.gestation = 0
         self.gestation_period = 10
+
 
     x = property(lambda self: self.location.x,
                  lambda self, value: setattr(self.location,'x',value))
@@ -151,14 +155,32 @@ class Bunny(object):
 
     def draw(self):
         with matrix():
+            glBindTexture(bunny_texture.target, bunny_texture.id)
             if self.selected:
                 glColor3f(1.0, 0.5, 0.5)
             else:
-                glColor3f(1.0, 0, 0)
+                glColor3f(1.0, 1.0, 1.0)
             glScalef(tile_size,tile_size,tile_size)
             glTranslatef(self.x, self.y, 0)
-            glScalef(1-1/tile_size,1-1/tile_size,1-1/tile_size)
-            draw_square(GL_QUADS)
+            #glScalef(1-1/tile_size,1-1/tile_size,1-1/tile_size)
+            glEnable(GL_TEXTURE_2D)
+            draw_textured_square()
+            glDisable(GL_TEXTURE_2D)
+
+
+def draw_textured_square(prim=GL_QUADS):
+    square = (0, 0,
+              1, 0,
+              1, 1,
+              0, 1)
+    
+    pyglet.graphics.draw(4, prim,
+        ('v2i', square),
+        ('t2i', square),
+    )
+
+
+
 
 if __name__ == "__main__":
         a = Bunny(1,2)

@@ -3,10 +3,10 @@ from selection import Selection
 from pyglet.window import mouse
 from glhelper import *
 class WorldWindow(pyglet.window.Window):
-    def __init__(self, world):
+    def __init__(self, world, **kwargs):
         self.world = world
         self.selection = Selection()
-        super(WorldWindow,self).__init__()
+        super(WorldWindow,self).__init__(**kwargs)
 
     def on_mouse_press(self, x, y, button, modifiers):
         location = Vector(x,y)
@@ -32,9 +32,6 @@ class WorldWindow(pyglet.window.Window):
         location = Vector(x,y)
         if buttons & mouse.LEFT:
             self.selection.end = location
-
-        #elif buttons & mouse.MIDDLE:
-        #    self.create_grass(location)
 
     def create_grass(self, location):
         tile = tile_coordinate(location)
