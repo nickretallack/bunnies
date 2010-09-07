@@ -2,6 +2,7 @@ import pyglet
 from selection import Selection
 from pyglet.window import mouse
 from glhelper import *
+from bunny import Move
 class WorldWindow(pyglet.window.Window):
     def __init__(self, world, **kwargs):
         self.world = world
@@ -22,8 +23,9 @@ class WorldWindow(pyglet.window.Window):
 
         elif button == mouse.RIGHT:
             # command bunnies
+            destination = tile_coordinate(location)
             for bunny in self.selection.selected_objects:
-                bunny.destination = tile_coordinate(location)
+                bunny.current_action = Move(bunny, destination)
 
         elif button == mouse.MIDDLE:
             self.create_grass(location)

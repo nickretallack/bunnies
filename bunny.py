@@ -71,18 +71,6 @@ class Bunny(object):
                         print "chasing mate",
                         return True
 
-
-
-    def follow_orders(self):
-        if self.destination:
-            self.step_towards(self.destination)
-            if Distance(self.location, self.destination) < 1:
-                self.destination = None
-            print "obeying command",
-            return True
-
-
-
     def do_nothing(self):
         print "doing nothing",
         return True
